@@ -1,9 +1,9 @@
-import saver
 import yaml
 import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from discord_webhook import DiscordWebhook
+from pathlib import Path
 from time import sleep
 
 with open('config.yml', 'r') as file:
@@ -17,6 +17,27 @@ def load_script(name):
 clean_question = load_script('clean_question.js')
 format_question = load_script('format_question.js')
 get_question_details = load_script('get_question_details.js')
+
+# Returns ID of last tracked question
+def can_upload(question_id):
+	path = Path('l_id.txt')
+
+	if not path.is_file():
+		return True
+
+	with open(path.name, 'r') as file:
+		content = file.read()
+
+	try:
+		return question_id > int(content)
+	except:
+		return True
+
+# Saves question ID to a text file, this is to keep track of where the tracker
+# stopped last time
+def save_upload(question_id):
+	with open('l_id.txt', 'w') as file:
+		file.write(str(question_id))
 
 # Setups Firefox browser application
 def setup_driver():
@@ -110,20 +131,17 @@ def upload_question(driver, url):
 # Tracks untracked questions from the home page
 def update(driver):
 	urls = get_urls(driver)
-	tracked = saver.get_tracked()
 
 	for url in reversed(urls):
 		question_id = extract_id(url)
 
 		print(f'Scanning question {question_id}')
 
-		if question_id in tracked:
+		if not can_upload(question_id):
 			continue
 
 		upload_question(driver, url)
-		tracked.append(question_id)
-
-	saver.save_tracked(tracked)
+		save_upload(question_id)
 
 # Setups, controls and exits the driver
 def main():

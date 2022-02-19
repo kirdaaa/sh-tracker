@@ -28,6 +28,25 @@ function extractURL(element) {
   return href == "http://" ? element.innerText : href;
 }
 
+// Formats paragraph to Discord format
+function formatParagraph(element) {
+  let text = element.innerHTML;
+
+  text = text
+    .replace(/<code>(.*?)<\/code>/, "`\1`")
+    .replace(/<strong>(.*?)<\/strong>/, "**\1**")
+    .replace(/<i>(.*?)<\/i>/, "*\1*");
+
+  text = text.replace(
+    /<a target="_blank" href="(.*?)">(.*?)<\/a>/,
+    (a, b, c) => {
+      console.log(a, b, c)
+    }
+  );
+
+  return formatEntities(text);
+}
+
 // Writes formatted code element to the content, truncates the code block
 // if it's too long
 function processCode(element) {
@@ -47,42 +66,23 @@ function processCode(element) {
   writeText("```");
 }
 
-// Writes formatted paragraph text to the content
-function processParagraph(element) {
-  for (let child of element.children) {
-    let text = child.innerText;
-
-    switch (child.tagName) {
-    case "strong": text = formatEntities(`**${text}**`); break;
-    case "code": text = formatEntities(`\`${text}\``); break;
-    case "i": text = formatEntities(`*${text}*`); break;
-    case "a": text = extractURL(child);
-    }
-
-    if (content.length + text.length > 1600)
-      break;
-
-    writeLine(text);
-  }
-}
-
 // Writes formatted <ul> text to the content
 function processList(element) {
   for (let item of element.child)
-    writeLine(`- ${formatEntities(item.innerText)}`);
+    writeLine(`- ${formatParagraph(item.innerText)}`);
 }
 
 // Scans all HTML elements in the question content and formats them
 for (let element of markdown.children) {
   switch (element.tagName) {
   case "P":
-    processParagraph(element);
+    writeText(formatParagraph(element) + "\n");
     break;
   case "UL":
     processList(element);
     break;
   case "BLOCKQUOTE":
-    writeMarkdownText("> " + formatEntities(element.innerText) + "\n");
+    writeText("> " + formatParagraph(element) + "\n");
     break;
   case "DIV":
     if (element.classList.contains("syntaxhighlighter"))
