@@ -7,3 +7,5 @@ let points = document.querySelector(".question-points");
 points.remove();
 
 content.style.padding = "16px 32px";
+
+return content;

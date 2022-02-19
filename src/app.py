@@ -42,14 +42,17 @@ def get_username(details):
 def get_full_question_content(url, content, details):
 	question_id = extract_id(url)
 
+	title = details['title']
+	time = details['time']
+
+	print(details)
+
 	return f'''
-	**{details['title']}** *{question_id}*
-	<@&920585996519735306> <t:{details['time']}>
+**{title}** *{question_id}*
+<@&920585996519735306> <t:{time}>
 
-	{content}
-
-	Question URL: <{url}>
-	'''
+{content}
+Question URL: <{url}>'''
 
 # Returns URLs of 20 newest questions on the home page
 def get_urls(driver):
@@ -80,7 +83,7 @@ def upload_question_content(driver, url, details):
 
 # Uploads question screenshot to webhook v2
 def upload_question_screenshot(driver, url, details):
-	driver.execute_script(clean_question)
+	element = driver.execute_script(clean_question)
 
 	webhook = DiscordWebhook(
 		url=config['webhook_v2'],
@@ -128,7 +131,9 @@ def update(driver):
 def main():
 	driver = setup_driver()
 
-	while True:
+	upload_question(driver, 'https://scriptinghelpers.org/questions/77345/is-this-a-test-question-i-think-it-is-a-test-question')
+
+	while False:
 		# handling exceptions? bruh just put that shit into try and forget
 		try:
 			update(driver)

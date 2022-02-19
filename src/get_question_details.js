@@ -16,5 +16,5 @@ return {
   avatar: `https://scriptinghelpers.org${avatar.getAttribute('src')}`,
   reputation: parseInt(reputation.innerText),
   title: title.innerText,
-  time: new Date(date.getAttribute('title')).getUTCSeconds()
+  time: date.getAttribute('title')
 };
