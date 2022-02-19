@@ -14,14 +14,14 @@ def load_script(name):
 	with open('src/' + name, 'r') as file:
 		return file.read()
 
-clean_question = load_script('cleanQuestion.js')
-format_question = load_script('formatQuestion.js')
-get_question_details = load_script('getQuestionDetails.js')
+clean_question = load_script('clean_question.js')
+format_question = load_script('format_question.js')
+get_question_details = load_script('get_question_details.js')
 
 # Setups Firefox browser application
 def setup_driver():
 	options = webdriver.FirefoxOptions()
-	options.add_argument('--headless')
+	# options.add_argument('--headless')
 
 	return webdriver.Firefox(options=options)
 
@@ -33,7 +33,10 @@ def extract_id(url):
 
 # Creates webhook username from data about question poster
 def get_username(details):
-	return f'{details[name]} ({details[reputation]})'
+	name = details['name']
+	reputation = details['reputation']
+
+	return f'{name} ({reputation})'
 
 # Creates webhook question content including header and additional details
 def get_full_question_content(url, content, details):
@@ -72,7 +75,7 @@ def upload_question_content(driver, url, details):
 		username=get_username(details),
 		avatar_url=details['avatar']
 	)
-	print(webhook['content'])
+
 	webhook.execute()
 
 # Uploads question screenshot to webhook v2
@@ -93,11 +96,13 @@ def upload_question_screenshot(driver, url, details):
 def upload_question(driver, url):
 	driver.get(url)
 
-	details = driver.execute_script(get_question_details)
-
 	try:
+		details = driver.execute_script(get_question_details)
+
 		upload_question_content(driver, url, details)
 		upload_question_screenshot(driver, url, details)
+
+		print(f'Successfully uploaded question {url}')
 	except Exception as exception:
 		print(f'Failed to upload question: {exception}')
 
@@ -106,8 +111,10 @@ def update(driver):
 	urls = get_urls(driver)
 	tracked = saver.get_tracked()
 
-	for url in urls:
+	for url in reversed(urls):
 		question_id = extract_id(url)
+
+		print(f'Scanning question {question_id}')
 
 		if question_id in tracked:
 			continue
@@ -122,7 +129,12 @@ def main():
 	driver = setup_driver()
 
 	while True:
-		update(driver)
+		# handling exceptions? bruh just put that shit into try and forget
+		try:
+			update(driver)
+		except Exception as exception:
+			print(f'Failed to update driver: {exception}')
+
 		sleep(40)
 
 	driver.quit()
