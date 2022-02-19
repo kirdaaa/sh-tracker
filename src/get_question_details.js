@@ -11,10 +11,17 @@ let name = poster.querySelector(".loggedin-name");
 
 let reputation = poster.querySelector(".muted.small");
 
+// Returns UNIX timestamp from UTC date string
+function getUnixTimestamp(string) {
+  string = string.replace(" UTC", "");
+
+  return Date.parse(string) / 1000;
+}
+
 return {
   name: name.innerText,
   avatar: `https://scriptinghelpers.org${avatar.getAttribute('src')}`,
   reputation: parseInt(reputation.innerText),
   title: title.innerText,
-  time: date.getAttribute('title')
+  time: getUnixTimestamp(date.getAttribute('title'))
 };
