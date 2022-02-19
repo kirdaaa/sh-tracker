@@ -118,15 +118,10 @@ def upload_question_screenshot(driver, url, details):
 def upload_question(driver, url):
 	driver.get(url)
 
-	try:
-		details = driver.execute_script(get_question_details)
+	details = driver.execute_script(get_question_details)
 
-		upload_question_content(driver, url, details)
-		upload_question_screenshot(driver, url, details)
-
-		print(f'Successfully uploaded question {url}')
-	except Exception as exception:
-		print(f'Failed to upload question: {exception}')
+	upload_question_content(driver, url, details)
+	upload_question_screenshot(driver, url, details)
 
 # Tracks untracked questions from the home page
 def update(driver):
@@ -140,8 +135,11 @@ def update(driver):
 		if not can_upload(question_id):
 			continue
 
-		upload_question(driver, url)
-		save_upload(question_id)
+		try:
+			upload_question(driver, url)
+			save_upload(question_id)
+		except Exception as exception:
+			print(f'Failed to upload question: {exception}')
 
 # Setups, controls and exits the driver
 def main():
