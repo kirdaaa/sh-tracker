@@ -21,7 +21,7 @@ get_question_details = load_script('get_question_details.js')
 # Setups Firefox browser application
 def setup_driver():
 	options = webdriver.FirefoxOptions()
-	# options.add_argument('--headless')
+	options.add_argument('--headless')
 
 	return webdriver.Firefox(options=options)
 
@@ -45,11 +45,9 @@ def get_full_question_content(url, content, details):
 	title = details['title']
 	time = details['time']
 
-	print(details)
-
 	return f'''
 **{title}** *{question_id}*
-<@&920585996519735306> <t:{time}>
+<@&920585996519735306> <t:{time}> <t:{time}:R>
 
 {content}
 Question URL: <{url}>'''
@@ -131,9 +129,7 @@ def update(driver):
 def main():
 	driver = setup_driver()
 
-	upload_question(driver, 'https://scriptinghelpers.org/questions/77345/is-this-a-test-question-i-think-it-is-a-test-question')
-
-	while False:
+	while True:
 		# handling exceptions? bruh just put that shit into try and forget
 		try:
 			update(driver)
