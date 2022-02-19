@@ -12,8 +12,8 @@ let name = poster.querySelector(".loggedin-name");
 let reputation = poster.querySelector(".muted.small");
 
 return {
-	name: name.innerText,
-	avatar: `https://scriptinghelpers.org${avatar.getAttribute('src')}`,
+  name: name.innerText,
+  avatar: `https://scriptinghelpers.org${avatar.getAttribute('src')}`,
   reputation: parseInt(reputation.innerText),
   title: title.innerText,
   time: new Date(date.getAttribute('title')).getUTCSeconds()
