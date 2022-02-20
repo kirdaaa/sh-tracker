@@ -15,7 +15,6 @@ def load_script(name):
 		return file.read()
 
 clean_question = load_script('clean_question.js')
-format_question = load_script('format_question.js')
 get_question_details = load_script('get_question_details.js')
 
 # Returns ID of last tracked question
@@ -42,7 +41,7 @@ def save_upload(question_id):
 # Setups Firefox browser application
 def setup_driver():
 	options = webdriver.FirefoxOptions()
-	options.add_argument('--headless')
+	# options.add_argument('--headless')
 
 	return webdriver.Firefox(options=options)
 
@@ -59,20 +58,6 @@ def get_username(details):
 
 	return f'{name} ({reputation})'
 
-# Creates webhook question content including header and additional details
-def get_full_question_content(url, content, details):
-	question_id = extract_id(url)
-
-	title = details['title']
-	time = details['time']
-
-	return f'''
-**{title}** *{question_id}*
-<@&920585996519735306> <t:{time}> <t:{time}:R>
-
-{content}
-Question URL: <{url}>'''
-
 # Returns URLs of 20 newest questions on the home page
 def get_urls(driver):
 	driver.get('https://scriptinghelpers.org/')
@@ -87,26 +72,18 @@ def get_urls(driver):
 
 	return urls
 
-# Uploads question content to webhook v1
-def upload_question_content(driver, url, details):
-	content = driver.execute_script(format_question)
+# Uploads question screenshot to the webhook
+def upload_question(driver, url):
+	driver.get(url)
+
+	details = driver.execute_script(get_question_details)
+	element = driver.execute_script(clean_question)
+
+	time = details['time']
 
 	webhook = DiscordWebhook(
 		url=config['webhook'],
-		content=get_full_question_content(url, content, details),
-		username=get_username(details),
-		avatar_url=details['avatar']
-	)
-
-	webhook.execute()
-
-# Uploads question screenshot to webhook v2
-def upload_question_screenshot(driver, url, details):
-	element = driver.execute_script(clean_question)
-
-	webhook = DiscordWebhook(
-		url=config['webhook_v2'],
-		content=f"<@&920585996519735306>\n<{url}>",
+		content=f'<@&920585996519735306> <t:{time}:R>\n<{url}>',
 		username=get_username(details),
 		avatar_url=details['avatar']
 	)
@@ -114,23 +91,12 @@ def upload_question_screenshot(driver, url, details):
 	webhook.add_file(file=element.screenshot_as_png, filename='a.png')
 	webhook.execute()
 
-# Uploads question to both webhooks
-def upload_question(driver, url):
-	driver.get(url)
-
-	details = driver.execute_script(get_question_details)
-
-	upload_question_content(driver, url, details)
-	upload_question_screenshot(driver, url, details)
-
 # Tracks untracked questions from the home page
 def update(driver):
 	urls = get_urls(driver)
 
 	for url in reversed(urls):
 		question_id = extract_id(url)
-
-		print(f'Scanning question {question_id}')
 
 		if not can_upload(question_id):
 			continue

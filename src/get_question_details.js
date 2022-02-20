@@ -13,9 +13,9 @@ let reputation = poster.querySelector(".muted.small");
 
 // Returns UNIX timestamp from UTC date string
 function getUnixTimestamp(string) {
-  string = string.replace(" UTC", "");
+  let date = new Date(string.replace(" UTC", ""));
 
-  return Date.parse(string) / 1000;
+  return date.getTime() / 1000 - date.getTimezoneOffset() * 60;
 }
 
 return {
