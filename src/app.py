@@ -41,7 +41,7 @@ def save_upload(question_id):
 # Setups Firefox browser application
 def setup_driver():
 	options = webdriver.FirefoxOptions()
-	# options.add_argument('--headless')
+	options.add_argument('--headless')
 
 	return webdriver.Firefox(options=options)
 
