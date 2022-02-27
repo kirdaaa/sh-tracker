@@ -8,4 +8,11 @@ points.remove();
 
 content.style.padding = "16px 32px";
 
+// Remove advertisements
+let ads = document.getElementsByClassName("google-auto-placedd")
+
+for (let ad of ads) {
+	ad.remove();
+}
+
 return content;
