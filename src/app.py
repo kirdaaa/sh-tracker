@@ -1,4 +1,3 @@
-import yaml
 import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -6,8 +5,8 @@ from discord_webhook import DiscordWebhook
 from pathlib import Path
 from time import sleep
 
-with open('config.yml', 'r') as file:
-    config = yaml.safe_load(file)
+with open('webhook.txt', 'r') as file:
+    webhook = file.read()
 
 # Loads JavaScript code that can be executed using driver.execute_script()
 def load_script(name):
@@ -82,7 +81,7 @@ def upload_question(driver, url):
     time = details['time']
 
     webhook = DiscordWebhook(
-        url=config['webhook'],
+        url=webhook,
         content=f'<@&920585996519735306> <t:{time}:R>\n<{url}>',
         username=get_username(details),
         avatar_url=details['avatar']
