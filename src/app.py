@@ -73,6 +73,8 @@ def get_urls(driver):
 
 # Uploads question screenshot to the webhook
 def upload_question(driver, url):
+    global webhook
+
     driver.get(url)
 
     details = driver.execute_script(get_question_details)
