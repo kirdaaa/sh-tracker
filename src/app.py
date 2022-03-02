@@ -6,7 +6,7 @@ from pathlib import Path
 from time import sleep
 
 with open('webhook.txt', 'r') as file:
-    webhook = file.read()
+    webhook_url = file.read()
 
 # Loads JavaScript code that can be executed using driver.execute_script()
 def load_script(name):
@@ -73,7 +73,7 @@ def get_urls(driver):
 
 # Uploads question screenshot to the webhook
 def upload_question(driver, url):
-    global webhook
+    global webhook_url
 
     driver.get(url)
 
@@ -83,7 +83,7 @@ def upload_question(driver, url):
     time = details['time']
 
     webhook = DiscordWebhook(
-        url=webhook,
+        url=webhook_url,
         content=f'<@&920585996519735306> <t:{time}:R>\n<{url}>',
         username=get_username(details),
         avatar_url=details['avatar']
